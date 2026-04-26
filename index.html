@@ -431,18 +431,37 @@
 
 <!-- Auth Overlay -->
 <div id="auth-overlay" style="position: fixed; inset: 0; background: var(--bg); z-index: 2000; display: flex; align-items: center; justify-content: center; padding: 1rem;">
-  <div class="modal" style="display: block; max-width: 400px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1);">
+  <div class="modal" style="display: block; max-width: 400px; width: 100%; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); padding: 2.5rem;">
     <div style="text-align: center; margin-bottom: 2rem;">
-      <h2 style="font-size: 2rem; color: var(--accent);">Welcome Back</h2>
-      <p style="color: var(--text-muted); font-size: 0.9rem;">Sign in to your aesthetic ritual space.</p>
+      <h2 style="font-size: 2.2rem; color: var(--accent); font-weight: 800;" id="auth-title">Welcome Back</h2>
+      <p style="color: var(--text-muted); font-size: 0.95rem; margin-top: 0.5rem;" id="auth-subtitle">Sign in to your aesthetic ritual space.</p>
     </div>
-    <input type="email" id="auth-email" class="form-control" placeholder="Email Address">
-    <input type="password" id="auth-password" class="form-control" placeholder="Password">
-    <div style="display: flex; gap: 1rem;">
-      <button class="btn btn-outline" style="flex: 1;" onclick="handleAuth('signUp')">Sign Up</button>
-      <button class="btn btn-primary" style="flex: 1;" onclick="handleAuth('signIn')">Log In</button>
+    
+    <div style="margin-bottom: 1.5rem;">
+      <label style="display: block; font-size: 0.8rem; font-weight: 700; color: var(--text-muted); margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: 0.05em;">Email Address</label>
+      <input type="email" id="auth-email" class="form-control" placeholder="hello@ritual.com">
     </div>
-    <p id="auth-error" style="color: #ef4444; font-size: 0.8rem; margin-top: 1rem; text-align: center; display: none;"></p>
+    
+    <div style="margin-bottom: 1.5rem;">
+      <label style="display: block; font-size: 0.8rem; font-weight: 700; color: var(--text-muted); margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: 0.05em;">Password</label>
+      <input type="password" id="auth-password" class="form-control" placeholder="••••••••">
+    </div>
+
+    <div id="signup-fields" style="display: none; margin-bottom: 1.5rem;">
+      <label style="display: block; font-size: 0.8rem; font-weight: 700; color: var(--text-muted); margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: 0.05em;">Confirm Password</label>
+      <input type="password" id="auth-confirm-password" class="form-control" placeholder="••••••••">
+    </div>
+
+    <button class="btn btn-primary" style="width: 100%; padding: 1rem; font-size: 1rem;" id="auth-submit-btn" onclick="performAuth()">Sign In</button>
+    
+    <div style="text-align: center; margin-top: 1.5rem;">
+      <p style="font-size: 0.9rem; color: var(--text-muted);">
+        <span id="auth-toggle-text">Don't have an account?</span>
+        <a href="#" onclick="toggleAuthMode()" style="color: var(--accent); font-weight: 700; text-decoration: none; margin-left: 0.3rem;" id="auth-toggle-link">Create Account</a>
+      </p>
+    </div>
+    
+    <p id="auth-error" style="color: #ef4444; font-size: 0.85rem; margin-top: 1.2rem; text-align: center; display: none; font-weight: 500; background: #fee2e2; padding: 0.8rem; border-radius: 8px;"></p>
   </div>
 </div>
 
@@ -452,10 +471,60 @@
     habits: [],
     checks: {},
     viewDate: new Date(),
-    today: new Date().toISOString().split('T')[0]
+    today: new Date().toISOString().split('T')[0],
+    isSignUp: false
   };
 
   let charts = {};
+
+  function toggleAuthMode() {
+    state.isSignUp = !state.isSignUp;
+    const title = document.getElementById('auth-title');
+    const subtitle = document.getElementById('auth-subtitle');
+    const signupFields = document.getElementById('signup-fields');
+    const submitBtn = document.getElementById('auth-submit-btn');
+    const toggleText = document.getElementById('auth-toggle-text');
+    const toggleLink = document.getElementById('auth-toggle-link');
+
+    if (state.isSignUp) {
+      title.textContent = "Start Your Ritual";
+      subtitle.textContent = "Create your aesthetic space for growth.";
+      signupFields.style.display = 'block';
+      submitBtn.textContent = "Create Account";
+      toggleText.textContent = "Already have an account?";
+      toggleLink.textContent = "Sign In";
+    } else {
+      title.textContent = "Welcome Back";
+      subtitle.textContent = "Sign in to your aesthetic ritual space.";
+      signupFields.style.display = 'none';
+      submitBtn.textContent = "Sign In";
+      toggleText.textContent = "Don't have an account?";
+      toggleLink.textContent = "Create Account";
+    }
+  }
+
+  async function performAuth() {
+    const email = document.getElementById('auth-email').value;
+    const password = document.getElementById('auth-password').value;
+    const confirmPass = document.getElementById('auth-confirm-password').value;
+    const errorEl = document.getElementById('auth-error');
+    errorEl.style.display = 'none';
+
+    if (!email || !password) {
+      errorEl.textContent = "All fields are required.";
+      errorEl.style.display = 'block';
+      return;
+    }
+
+    if (state.isSignUp && password !== confirmPass) {
+      errorEl.textContent = "Passwords do not match.";
+      errorEl.style.display = 'block';
+      return;
+    }
+
+    const type = state.isSignUp ? 'signUp' : 'signIn';
+    handleAuth(type, email, password);
+  }
 
   async function init() {
     const SUPABASE_URL = 'https://uxuncaxwtrscpwynnqqa.supabase.co'; 
