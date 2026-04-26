@@ -486,10 +486,18 @@
     const errorEl = document.getElementById('auth-error');
     errorEl.style.display = 'none';
 
+    if (!email || !password) {
+      errorEl.textContent = "Please enter both email and password.";
+      errorEl.style.display = 'block';
+      return;
+    }
+
     try {
       const { data, error } = await window.supabaseClient.auth[type]({ email, password });
       if (error) throw error;
-      if (type === 'signUp') alert("Check your email for confirmation!");
+      if (type === 'signUp') {
+        alert("Sign up successful! You can now Log In. (If you enabled email confirmation, check your inbox)");
+      }
     } catch (e) {
       errorEl.textContent = e.message;
       errorEl.style.display = 'block';
