@@ -438,18 +438,13 @@
     </div>
     
     <div style="margin-bottom: 1.5rem;">
-      <label style="display: block; font-size: 0.8rem; font-weight: 700; color: var(--text-muted); margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: 0.05em;">Email Address</label>
-      <input type="email" id="auth-email" class="form-control" placeholder="hello@ritual.com">
+      <label style="display: block; font-size: 0.8rem; font-weight: 700; color: var(--text-muted); margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: 0.05em;">Username / Email</label>
+      <input type="text" id="auth-email" class="form-control" placeholder="Choose a name">
     </div>
     
     <div style="margin-bottom: 1.5rem;">
       <label style="display: block; font-size: 0.8rem; font-weight: 700; color: var(--text-muted); margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: 0.05em;">Password</label>
       <input type="password" id="auth-password" class="form-control" placeholder="••••••••">
-    </div>
-
-    <div id="signup-fields" style="display: none; margin-bottom: 1.5rem;">
-      <label style="display: block; font-size: 0.8rem; font-weight: 700; color: var(--text-muted); margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: 0.05em;">Confirm Password</label>
-      <input type="password" id="auth-confirm-password" class="form-control" placeholder="••••••••">
     </div>
 
     <button class="btn btn-primary" style="width: 100%; padding: 1rem; font-size: 1rem;" id="auth-submit-btn" onclick="performAuth()">Sign In</button>
@@ -481,49 +476,49 @@
     state.isSignUp = !state.isSignUp;
     const title = document.getElementById('auth-title');
     const subtitle = document.getElementById('auth-subtitle');
-    const signupFields = document.getElementById('signup-fields');
     const submitBtn = document.getElementById('auth-submit-btn');
     const toggleText = document.getElementById('auth-toggle-text');
     const toggleLink = document.getElementById('auth-toggle-link');
 
     if (state.isSignUp) {
-      title.textContent = "Start Your Ritual";
-      subtitle.textContent = "Create your aesthetic space for growth.";
-      signupFields.style.display = 'block';
-      submitBtn.textContent = "Create Account";
+      title.textContent = "Create Account";
+      subtitle.textContent = "Choose any name and password to start.";
+      submitBtn.textContent = "Sign Up";
       toggleText.textContent = "Already have an account?";
-      toggleLink.textContent = "Sign In";
+      toggleLink.textContent = "Log In";
     } else {
       title.textContent = "Welcome Back";
-      subtitle.textContent = "Sign in to your aesthetic ritual space.";
-      signupFields.style.display = 'none';
-      submitBtn.textContent = "Sign In";
+      subtitle.textContent = "Enter your name to access your rituals.";
+      submitBtn.textContent = "Log In";
       toggleText.textContent = "Don't have an account?";
-      toggleLink.textContent = "Create Account";
+      toggleLink.textContent = "Sign Up";
     }
   }
 
   async function performAuth() {
-    const email = document.getElementById('auth-email').value;
-    const password = document.getElementById('auth-password').value;
-    const confirmPass = document.getElementById('auth-confirm-password').value;
+    const user = document.getElementById('auth-email').value.trim();
+    const pass = document.getElementById('auth-password').value;
     const errorEl = document.getElementById('auth-error');
     errorEl.style.display = 'none';
 
-    if (!email || !password) {
-      errorEl.textContent = "All fields are required.";
+    if (!user || !pass) {
+      errorEl.textContent = "Name and Password are required.";
       errorEl.style.display = 'block';
       return;
     }
 
-    if (state.isSignUp && password !== confirmPass) {
-      errorEl.textContent = "Passwords do not match.";
-      errorEl.style.display = 'block';
-      return;
-    }
-
-    const type = state.isSignUp ? 'signUp' : 'signIn';
-    handleAuth(type, email, password);
+    // Manual Auth: Hashed username:pass as a unique key for data isolation
+    const sessionKey = btoa(`${user}:${pass}`);
+    state.user = { id: sessionKey, username: user };
+    localStorage.setItem('ritual_user', JSON.stringify(state.user));
+    
+    document.getElementById('auth-overlay').style.display = 'none';
+    document.getElementById('main-app').style.display = 'block';
+    document.getElementById('user-email').textContent = user;
+    
+    await loadFromSupabase();
+    render();
+    fetchRealData();
   }
 
   async function init() {
@@ -531,40 +526,23 @@
     const SUPABASE_KEY = 'sb_publishable_cPcFzVaVjDyZl0fsn_B2RA_uVy3DSFw';
     window.supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-    window.supabaseClient.auth.onAuthStateChange(async (event, session) => {
-      if (session) {
-        state.user = session.user;
-        document.getElementById('auth-overlay').style.display = 'none';
-        document.getElementById('main-app').style.display = 'block';
-        document.getElementById('user-email').textContent = state.user.email;
-        await loadFromSupabase();
-        render();
-        fetchRealData();
-      } else {
-        state.user = null;
-        document.getElementById('auth-overlay').style.display = 'flex';
-        document.getElementById('main-app').style.display = 'none';
-      }
-    });
-  }
-
-  async function handleAuth(type, email, password) {
-    const errorEl = document.getElementById('auth-error');
-    errorEl.style.display = 'none';
-    try {
-      const { data, error } = await window.supabaseClient.auth[type]({ email, password });
-      if (error) throw error;
-      if (type === 'signUp') {
-        alert("Sign up successful! Now please Log In. (Important: Make sure 'Confirm Email' is OFF in your Supabase settings)");
-      }
-    } catch (e) {
-      errorEl.textContent = e.message;
-      errorEl.style.display = 'block';
+    const saved = localStorage.getItem('ritual_user');
+    if (saved) {
+      state.user = JSON.parse(saved);
+      document.getElementById('auth-overlay').style.display = 'none';
+      document.getElementById('main-app').style.display = 'block';
+      document.getElementById('user-email').textContent = state.user.username;
+      await loadFromSupabase();
+      render();
+      fetchRealData();
+    } else {
+      document.getElementById('auth-overlay').style.display = 'flex';
+      document.getElementById('main-app').style.display = 'none';
     }
   }
 
   async function handleSignOut() {
-    await window.supabaseClient.auth.signOut();
+    localStorage.removeItem('ritual_user');
     location.reload();
   }
 
@@ -601,9 +579,7 @@
         await window.supabaseClient.from('habits').delete().eq('id', id).eq('user_id', state.user.id);
         await window.supabaseClient.from('checks').delete().eq('habit_id', id).eq('user_id', state.user.id);
       }
-    } catch (e) {
-      console.error("Supabase sync failed:", e);
-    }
+    } catch (e) { console.error("Supabase sync failed:", e); }
   }
 
   async function fetchRealData() {
