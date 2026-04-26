@@ -321,7 +321,7 @@
 </head>
 <body>
 
-<div class="app-container">
+<div class="app-container" id="main-app" style="display: none;">
   <!-- Insights Bar -->
   <div class="insights-bar">
     <div class="insight-card">
@@ -342,28 +342,34 @@
   </div>
 
   <!-- Stats Header -->
-  <div class="stats-header">
-    <div class="stat-card" style="background: #fef2f2;">
-      <div>
-        <p style="color: #991b1b; font-weight: 700; font-size: 0.8rem; text-transform: uppercase;">Daily Progress</p>
-        <p style="font-size: 2.5rem; font-weight: 800; color: #7f1d1d;" id="daily-pct">72.29%</p>
+  <header style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 2rem;">
+    <div class="stats-header" style="flex-grow: 1;">
+      <div class="stat-card" style="background: #fef2f2;">
+        <div>
+          <p style="color: #991b1b; font-weight: 700; font-size: 0.8rem; text-transform: uppercase;">Daily Progress</p>
+          <p style="font-size: 2.5rem; font-weight: 800; color: #7f1d1d;" id="daily-pct">0%</p>
+        </div>
+        <div class="progress-ring-container">
+          <canvas id="dailyRing"></canvas>
+          <div class="ring-value" style="color: #991b1b;">0%</div>
+        </div>
       </div>
-      <div class="progress-ring-container">
-        <canvas id="dailyRing"></canvas>
-        <div class="ring-value" style="color: #991b1b;">72%</div>
+      <div class="stat-card" style="background: #fdf2f8;">
+        <div>
+          <p style="color: #9d174d; font-weight: 700; font-size: 0.8rem; text-transform: uppercase;">Monthly Habits</p>
+          <p style="font-size: 2.5rem; font-weight: 800; color: #831843;" id="monthly-count">0 / 0</p>
+        </div>
+        <div class="progress-ring-container">
+          <canvas id="monthlyRing"></canvas>
+          <div class="ring-value" style="color: #9d174d;">0</div>
+        </div>
       </div>
     </div>
-    <div class="stat-card" style="background: #fdf2f8;">
-      <div>
-        <p style="color: #9d174d; font-weight: 700; font-size: 0.8rem; text-transform: uppercase;">Monthly Habits</p>
-        <p style="font-size: 2.5rem; font-weight: 800; color: #831843;" id="monthly-count">253 / 350</p>
-      </div>
-      <div class="progress-ring-container">
-        <canvas id="monthlyRing"></canvas>
-        <div class="ring-value" style="color: #9d174d;">253</div>
-      </div>
+    <div style="padding: 1rem; text-align: right;">
+      <div id="user-email" style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.5rem;">user@example.com</div>
+      <button class="btn btn-outline" onclick="handleSignOut()" style="font-size: 0.7rem;">Sign Out</button>
     </div>
-  </div>
+  </header>
 
   <!-- Master Sheet -->
   <div class="sheet-card">
@@ -423,10 +429,28 @@
   </div>
 </div>
 
+<!-- Auth Overlay -->
+<div id="auth-overlay" style="position: fixed; inset: 0; background: var(--bg); z-index: 2000; display: flex; align-items: center; justify-content: center; padding: 1rem;">
+  <div class="modal" style="display: block; max-width: 400px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1);">
+    <div style="text-align: center; margin-bottom: 2rem;">
+      <h2 style="font-size: 2rem; color: var(--accent);">Welcome Back</h2>
+      <p style="color: var(--text-muted); font-size: 0.9rem;">Sign in to your aesthetic ritual space.</p>
+    </div>
+    <input type="email" id="auth-email" class="form-control" placeholder="Email Address">
+    <input type="password" id="auth-password" class="form-control" placeholder="Password">
+    <div style="display: flex; gap: 1rem;">
+      <button class="btn btn-outline" style="flex: 1;" onclick="handleAuth('signUp')">Sign Up</button>
+      <button class="btn btn-primary" style="flex: 1;" onclick="handleAuth('signIn')">Log In</button>
+    </div>
+    <p id="auth-error" style="color: #ef4444; font-size: 0.8rem; margin-top: 1rem; text-align: center; display: none;"></p>
+  </div>
+</div>
+
 <script>
   let state = {
-    habits: JSON.parse(localStorage.getItem('aesthetic_habits') || '[]'),
-    checks: JSON.parse(localStorage.getItem('aesthetic_checks') || '{}'),
+    user: null,
+    habits: [],
+    checks: {},
     viewDate: new Date(),
     today: new Date().toISOString().split('T')[0]
   };
@@ -434,53 +458,86 @@
   let charts = {};
 
   async function init() {
-    // SUPABASE SETUP: Connected to your project
     const SUPABASE_URL = 'https://uxuncaxwtrscpwynnqqa.supabase.co'; 
     const SUPABASE_KEY = 'sb_publishable_cPcFzVaVjDyZl0fsn_B2RA_uVy3DSFw';
+    window.supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-    if (SUPABASE_URL !== 'YOUR_SUPABASE_URL') {
-      window.supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-      await loadFromSupabase();
-    } else {
-      console.warn("Supabase keys not found. Using localStorage.");
-      if (state.habits.length === 0) {
-        state.habits = [
-          { id: 1, title: 'Exercise for 30 minutes', goal: 30 },
-          { id: 2, title: 'Read 10 pages of a book', goal: 30 },
-          { id: 3, title: 'Plan next day\'s schedule', goal: 30 },
-          { id: 4, title: 'Check emails and updates', goal: 25 },
-          { id: 5, title: 'Review flashcards', goal: 30 },
-          { id: 6, title: 'Meditate for 10 minutes', goal: 30 }
-        ];
-        sync();
+    // Listen for auth changes
+    window.supabaseClient.auth.onAuthStateChange(async (event, session) => {
+      if (session) {
+        state.user = session.user;
+        document.getElementById('auth-overlay').style.display = 'none';
+        document.getElementById('main-app').style.display = 'block';
+        document.getElementById('user-email').textContent = state.user.email;
+        await loadFromSupabase();
+        render();
+        fetchRealData();
+      } else {
+        state.user = null;
+        document.getElementById('auth-overlay').style.display = 'flex';
+        document.getElementById('main-app').style.display = 'none';
       }
+    });
+  }
+
+  async function handleAuth(type) {
+    const email = document.getElementById('auth-email').value;
+    const password = document.getElementById('auth-password').value;
+    const errorEl = document.getElementById('auth-error');
+    errorEl.style.display = 'none';
+
+    try {
+      const { data, error } = await window.supabaseClient.auth[type]({ email, password });
+      if (error) throw error;
+      if (type === 'signUp') alert("Check your email for confirmation!");
+    } catch (e) {
+      errorEl.textContent = e.message;
+      errorEl.style.display = 'block';
     }
-    render();
-    fetchRealData();
+  }
+
+  async function handleSignOut() {
+    await window.supabaseClient.auth.signOut();
   }
 
   async function loadFromSupabase() {
+    if (!state.user) return;
     try {
-      const { data: habits, error: hError } = await window.supabaseClient.from('habits').select('*');
-      const { data: checks, error: cError } = await window.supabaseClient.from('checks').select('*');
+      const { data: habits, error: hError } = await window.supabaseClient.from('habits').select('*').eq('user_id', state.user.id);
+      const { data: checks, error: cError } = await window.supabaseClient.from('checks').select('*').eq('user_id', state.user.id);
 
       if (!hError && habits) state.habits = habits;
       if (!cError && checks) {
         state.checks = {};
         checks.forEach(c => { state.checks[`${c.habit_id}-${c.date}`] = true; });
       }
-      
-      const statusEl = document.getElementById('db-status');
-      statusEl.textContent = 'Cloud Synced';
-      statusEl.style.background = '#dcfce7';
-      statusEl.style.color = '#166534';
     } catch (e) {
       console.error("Supabase load failed:", e);
     }
   }
 
+  async function sync(type, id, date, isChecked) {
+    if (!window.supabaseClient || !state.user) return;
+    try {
+      if (type === 'check') {
+        if (isChecked) {
+          await window.supabaseClient.from('checks').insert([{ habit_id: id, date: date, user_id: state.user.id }]);
+        } else {
+          await window.supabaseClient.from('checks').delete().match({ habit_id: id, date: date, user_id: state.user.id });
+        }
+      } else if (type === 'add_habit') {
+        const newHabit = state.habits[state.habits.length - 1];
+        await window.supabaseClient.from('habits').insert([{ ...newHabit, user_id: state.user.id }]);
+      } else if (type === 'delete_habit') {
+        await window.supabaseClient.from('habits').delete().eq('id', id).eq('user_id', state.user.id);
+        await window.supabaseClient.from('checks').delete().eq('habit_id', id).eq('user_id', state.user.id);
+      }
+    } catch (e) {
+      console.error("Supabase sync failed:", e);
+    }
+  }
+
   async function fetchRealData() {
-    // 1. Fetch Quote
     try {
       const qRes = await fetch('https://api.allorigins.win/raw?url=https://zenquotes.io/api/random');
       const qData = await qRes.json();
@@ -488,47 +545,15 @@
         document.getElementById('quote-text').textContent = `"${qData[0].q}"`;
         document.getElementById('quote-author').textContent = qData[0].a;
       }
-    } catch (e) {
-      document.getElementById('quote-text').textContent = "Discipline is the bridge between goals and accomplishment.";
-      document.getElementById('quote-author').textContent = "Jim Rohn";
-    }
+    } catch (e) {}
 
-    // 2. Fetch Weather (Default to a general location or let user specify)
     try {
       const wRes = await fetch('https://wttr.in/?format=j1');
       const wData = await wRes.json();
       const current = wData.current_condition[0];
       document.getElementById('weather-temp').textContent = `${current.temp_C}°C`;
       document.getElementById('weather-desc').textContent = current.weatherDesc[0].value;
-    } catch (e) {
-      document.getElementById('weather-temp').textContent = "22°C";
-      document.getElementById('weather-desc').textContent = "Partly Cloudy";
-    }
-  }
-
-  async function sync(type, id, date, isChecked) {
-    localStorage.setItem('aesthetic_habits', JSON.stringify(state.habits));
-    localStorage.setItem('aesthetic_checks', JSON.stringify(state.checks));
-
-    if (window.supabaseClient) {
-      try {
-        if (type === 'check') {
-          if (isChecked) {
-            await window.supabaseClient.from('checks').insert([{ habit_id: id, date: date }]);
-          } else {
-            await window.supabaseClient.from('checks').delete().match({ habit_id: id, date: date });
-          }
-        } else if (type === 'add_habit') {
-          const newHabit = state.habits[state.habits.length - 1];
-          await window.supabaseClient.from('habits').insert([newHabit]);
-        } else if (type === 'delete_habit') {
-          await window.supabaseClient.from('habits').delete().eq('id', id);
-          await window.supabaseClient.from('checks').delete().eq('habit_id', id);
-        }
-      } catch (e) {
-        console.error("Supabase sync failed:", e);
-      }
-    }
+    } catch (e) {}
   }
 
   function render() {
@@ -539,10 +564,9 @@
   }
 
   function renderStats() {
-    const totalPossible = state.habits.length * 30; // Approximation
+    const totalPossible = state.habits.length * 30;
     const totalDone = Object.keys(state.checks).length;
     const pct = totalPossible ? Math.round((totalDone / totalPossible) * 10000) / 100 : 0;
-    
     document.getElementById('daily-pct').textContent = pct + '%';
     document.getElementById('monthly-count').textContent = `${totalDone} / ${totalPossible}`;
   }
@@ -550,13 +574,10 @@
   function renderSheet() {
     const head = document.getElementById('table-head');
     const body = document.getElementById('table-body');
-    const year = state.viewDate.getFullYear();
-    const month = state.viewDate.getMonth();
+    const year = state.viewDate.getFullYear(), month = state.viewDate.getMonth();
     const daysInMonth = new Date(year, month + 1, 0).getDate();
-    
     document.getElementById('sheet-title').textContent = new Intl.DateTimeFormat('en-US', { month: 'long', year: 'numeric' }).format(state.viewDate) + ' Habit Tracker';
 
-    // Header
     let headHtml = '<th class="habit-col">DAILY HABIT</th>';
     for (let d = 1; d <= daysInMonth; d++) {
       const isToday = d === new Date().getDate() && month === new Date().getMonth() && year === new Date().getFullYear();
@@ -564,18 +585,11 @@
     }
     head.innerHTML = headHtml;
 
-    // Body
     body.innerHTML = state.habits.map(h => {
-      let row = `<td class="habit-col">
-        <div style="display:flex; align-items:center; justify-content:space-between;">
-          <span>${h.title}</span>
-          <button onclick="deleteHabit(${h.id})" style="background:none; border:none; color:#ef4444; cursor:pointer; font-size:1.2rem; padding:0 5px;">×</button>
-        </div>
-      </td>`;
+      let row = `<td class="habit-col"><div style="display:flex; align-items:center; justify-content:space-between;"><span>${h.title}</span><button onclick="deleteHabit(${h.id})" style="background:none; border:none; color:#ef4444; cursor:pointer; font-size:1.2rem; padding:0 5px;">×</button></div></td>`;
       for (let d = 1; d <= daysInMonth; d++) {
         const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
-        const isChecked = state.checks[`${h.id}-${dateStr}`];
-        const isToday = dateStr === state.today;
+        const isChecked = state.checks[`${h.id}-${dateStr}`], isToday = dateStr === state.today;
         row += `<td><div class="check-cell ${isChecked ? 'active' : ''} ${isToday ? 'today' : ''}" onclick="toggleCheck(${h.id}, '${dateStr}')"></div></td>`;
       }
       return `<tr>${row}</tr>`;
@@ -583,130 +597,61 @@
   }
 
   function renderBento() {
-    const year = state.viewDate.getFullYear(), month = state.viewDate.getMonth();
-    const daysInMonth = new Date(year, month + 1, 0).getDate();
-
-    // Top Habits
+    const year = state.viewDate.getFullYear(), month = state.viewDate.getMonth(), daysInMonth = new Date(year, month + 1, 0).getDate();
     const topHabits = state.habits.map(h => {
       const count = Object.keys(state.checks).filter(k => k.startsWith(h.id + '-') && k.includes(`-${String(month+1).padStart(2, '0')}-`)).length;
       const pct = Math.round((count / daysInMonth) * 100);
       return { ...h, count, pct };
     }).sort((a, b) => b.pct - a.pct).slice(0, 10);
-
-    document.getElementById('top-habits-list').innerHTML = topHabits.map((h, i) => `
-      <div class="progress-item">
-        <div style="font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${i+1}. ${h.title}</div>
-        <div style="color: var(--text-muted); text-align: right;">${h.pct}%</div>
-        <div class="progress-bar-container" style="grid-column: span 2;">
-          <div class="progress-bar-fill" style="width: ${h.pct}%"></div>
-        </div>
-      </div>
-    `).join('');
-
-    // Daily Momentum
+    document.getElementById('top-habits-list').innerHTML = topHabits.map((h, i) => `<div class="progress-item"><div style="font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${i+1}. ${h.title}</div><div style="color: var(--text-muted); text-align: right;">${h.pct}%</div><div class="progress-bar-container" style="grid-column: span 2;"><div class="progress-bar-fill" style="width: ${h.pct}%"></div></div></div>`).join('');
     document.getElementById('daily-momentum-list').innerHTML = state.habits.map(h => {
       const count = Object.keys(state.checks).filter(k => k.startsWith(h.id + '-') && k.includes(`-${String(month+1).padStart(2, '0')}-`)).length;
       const pct = Math.round((count / h.goal) * 100);
-      return `
-        <div class="progress-item" style="grid-template-columns: 1.5fr 0.5fr 2fr 1fr;">
-          <div style="font-size: 0.8rem; font-weight: 600;">${h.goal}d</div>
-          <div style="color: var(--accent); font-weight: 700;">${pct}%</div>
-          <div class="progress-bar-container">
-            <div class="progress-bar-fill" style="width: ${Math.min(pct, 100)}%; background: #93c5fd;"></div>
-          </div>
-          <div style="text-align: right; font-weight: 500;">${count} / ${h.goal}</div>
-        </div>
-      `;
+      return `<div class="progress-item" style="grid-template-columns: 1.5fr 0.5fr 2fr 1fr;"><div style="font-size: 0.8rem; font-weight: 600;">${h.goal}d</div><div style="color: var(--accent); font-weight: 700;">${pct}%</div><div class="progress-bar-container"><div class="progress-bar-fill" style="width: ${Math.min(pct, 100)}%; background: #93c5fd;"></div></div><div style="text-align: right; font-weight: 500;">${count} / ${h.goal}</div></div>`;
     }).join('');
   }
 
-  function deleteHabit(id) {
-    if (confirm('Delete this habit? All progress data will be removed.')) {
+  async function deleteHabit(id) {
+    if (confirm('Delete this habit?')) {
       state.habits = state.habits.filter(h => h.id !== id);
-      // Clean up checks
       Object.keys(state.checks).forEach(k => { if (k.startsWith(id + '-')) delete state.checks[k]; });
-      sync(); render();
+      render(); await sync('delete_habit', id);
     }
   }
 
   function initRings() {
-    const year = state.viewDate.getFullYear();
-    const month = state.viewDate.getMonth();
-    const daysInMonth = new Date(year, month + 1, 0).getDate();
-
-    // 1. Calculate Daily Progress (for Today)
-    const todayTasks = state.habits.filter(h => state.checks[`${h.id}-${state.today}`]).length;
-    const dailyPct = state.habits.length ? Math.round((todayTasks / state.habits.length) * 100) : 0;
-    
+    const year = state.viewDate.getFullYear(), month = state.viewDate.getMonth(), daysInMonth = new Date(year, month + 1, 0).getDate();
+    const todayTasks = state.habits.filter(h => state.checks[`${h.id}-${state.today}`]).length, dailyPct = state.habits.length ? Math.round((todayTasks / state.habits.length) * 100) : 0;
     document.getElementById('daily-pct').textContent = dailyPct + '%';
-    const dailyRingLabel = document.querySelector('.stats-header .stat-card:nth-child(1) .ring-value');
-    if (dailyRingLabel) dailyRingLabel.textContent = dailyPct + '%';
+    const drl = document.querySelector('.stats-header .stat-card:nth-child(1) .ring-value'); if (drl) drl.textContent = dailyPct + '%';
+    const dailyCtx = document.getElementById('dailyRing').getContext('2d'); if (charts.daily) charts.daily.destroy();
+    charts.daily = new Chart(dailyCtx, { type: 'doughnut', data: { datasets: [{ data: [dailyPct, 100 - dailyPct], backgroundColor: ['#ef4444', '#fee2e2'], borderWidth: 0 }] }, options: { cutout: '80%', plugins: { legend: { display: false } }, animation: { duration: 1000 } } });
 
-    const dailyCtx = document.getElementById('dailyRing').getContext('2d');
-    if (charts.daily) charts.daily.destroy();
-    charts.daily = new Chart(dailyCtx, {
-      type: 'doughnut',
-      data: { datasets: [{ data: [dailyPct, 100 - dailyPct], backgroundColor: ['#ef4444', '#fee2e2'], borderWidth: 0 }] },
-      options: { cutout: '80%', plugins: { legend: { display: false } }, animation: { duration: 1000 } }
-    });
-
-    // 2. Calculate Monthly Habits (Total completions this month)
-    let monthlyDone = 0;
-    const totalPossible = state.habits.length * daysInMonth;
-    
-    state.habits.forEach(h => {
-      for (let d = 1; d <= daysInMonth; d++) {
-        const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
-        if (state.checks[`${h.id}-${dateStr}`]) monthlyDone++;
-      }
-    });
-
-    const monthlyPct = totalPossible ? Math.round((monthlyDone / totalPossible) * 100) : 0;
-    document.getElementById('monthly-count').textContent = `${monthlyDone} / ${totalPossible}`;
-    const monthlyRingLabel = document.querySelector('.stats-header .stat-card:nth-child(2) .ring-value');
-    if (monthlyRingLabel) monthlyRingLabel.textContent = monthlyDone;
-
-    const monthlyCtx = document.getElementById('monthlyRing').getContext('2d');
-    if (charts.monthly) charts.monthly.destroy();
-    charts.monthly = new Chart(monthlyCtx, {
-      type: 'doughnut',
-      data: { datasets: [{ data: [monthlyPct, 100 - monthlyPct], backgroundColor: ['#db2777', '#fce7f3'], borderWidth: 0 }] },
-      options: { cutout: '80%', plugins: { legend: { display: false } }, animation: { duration: 1000 } }
-    });
+    let md = 0; const tp = state.habits.length * daysInMonth;
+    state.habits.forEach(h => { for (let d = 1; d <= daysInMonth; d++) if (state.checks[`${h.id}-${year}-${String(month+1).padStart(2, '0')}-${String(d).padStart(2, '0')}`]) md++; });
+    const mp = tp ? Math.round((md / tp) * 100) : 0;
+    document.getElementById('monthly-count').textContent = `${md} / ${tp}`;
+    const mrl = document.querySelector('.stats-header .stat-card:nth-child(2) .ring-value'); if (mrl) mrl.textContent = md;
+    const monthlyCtx = document.getElementById('monthlyRing').getContext('2d'); if (charts.monthly) charts.monthly.destroy();
+    charts.monthly = new Chart(monthlyCtx, { type: 'doughnut', data: { datasets: [{ data: [mp, 100 - mp], backgroundColor: ['#db2777', '#fce7f3'], borderWidth: 0 }] }, options: { cutout: '80%', plugins: { legend: { display: false } }, animation: { duration: 1000 } } });
   }
 
   async function toggleCheck(id, date) {
-    const k = `${id}-${date}`;
-    let isChecked = false;
-    if (state.checks[k]) {
-      delete state.checks[k];
-    } else {
-      state.checks[k] = true;
-      isChecked = true;
-    }
-    render();
-    await sync('check', id, date, isChecked);
+    const k = `${id}-${date}`; let ic = false;
+    if (state.checks[k]) delete state.checks[k]; else { state.checks[k] = true; ic = true; }
+    render(); await sync('check', id, date, ic);
   }
 
-  function changeMonth(dir) {
-    state.viewDate.setMonth(state.viewDate.getMonth() + dir);
-    render();
-  }
-
+  function changeMonth(dir) { state.viewDate.setMonth(state.viewDate.getMonth() + dir); render(); }
   function openModal() { document.getElementById('modal-overlay').classList.add('active'); }
   function closeModal() { document.getElementById('modal-overlay').classList.remove('active'); }
 
   async function saveHabit() {
-    const title = document.getElementById('habit-title').value;
-    const goal = document.getElementById('habit-goal').value;
+    const title = document.getElementById('habit-title').value, goal = document.getElementById('habit-goal').value;
     if (!title || !goal) return;
-    const newId = Date.now();
-    state.habits.push({ id: newId, title, goal: parseInt(goal) });
-    render();
-    closeModal();
-    await sync('add_habit');
-    document.getElementById('habit-title').value = '';
-    document.getElementById('habit-goal').value = '';
+    const nid = Date.now(); state.habits.push({ id: nid, title, goal: parseInt(goal) });
+    render(); closeModal(); await sync('add_habit');
+    document.getElementById('habit-title').value = ''; document.getElementById('habit-goal').value = '';
   }
 
   init();
