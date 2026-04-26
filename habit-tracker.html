@@ -483,12 +483,18 @@
   async function handleGuestLogin() {
     const errorEl = document.getElementById('auth-error');
     errorEl.style.display = 'none';
-    try {
-      const { error } = await window.supabaseClient.auth.signInAnonymously();
-      if (error) throw error;
-    } catch (e) {
-      errorEl.textContent = "Guest login failed. Please enable 'Anonymous' in Supabase -> Authentication -> Providers.";
-      errorEl.style.display = 'block';
+    const savedSession = localStorage.getItem('ritual_session');
+    if (savedSession) {
+      state.user = JSON.parse(savedSession);
+      document.getElementById('auth-overlay').style.display = 'none';
+      document.getElementById('main-app').style.display = 'block';
+      document.getElementById('user-email').textContent = state.user.email;
+      await loadFromSupabase();
+      render();
+      fetchRealData();
+    } else {
+      document.getElementById('auth-overlay').style.display = 'flex';
+      document.getElementById('main-app').style.display = 'none';
     }
   }
 
@@ -505,10 +511,25 @@
     }
 
     try {
-      const { data, error } = await window.supabaseClient.auth[type]({ email, password });
-      if (error) throw error;
       if (type === 'signUp') {
-        alert("Sign up successful! You can now Log In. (If you enabled email confirmation, check your inbox)");
+        const { data: existing } = await window.supabaseClient.from('app_users').select('*').eq('email', email).single();
+        if (existing) throw new Error("User already exists.");
+        
+        const { error } = await window.supabaseClient.from('app_users').insert([{ email, password }]);
+        if (error) throw error;
+        alert("Account created! Now please Log In.");
+      } else {
+        const { data: user, error } = await window.supabaseClient.from('app_users').select('*').eq('email', email).eq('password', password).single();
+        if (error || !user) throw new Error("Invalid email or password.");
+        
+        state.user = user;
+        localStorage.setItem('ritual_session', JSON.stringify(user));
+        document.getElementById('auth-overlay').style.display = 'none';
+        document.getElementById('main-app').style.display = 'block';
+        document.getElementById('user-email').textContent = state.user.email;
+        await loadFromSupabase();
+        render();
+        fetchRealData();
       }
     } catch (e) {
       errorEl.textContent = e.message;
@@ -517,20 +538,27 @@
   }
 
   async function handleSignOut() {
-    await window.supabaseClient.auth.signOut();
+    state.user = null;
+    localStorage.removeItem('ritual_session');
+    location.reload();
   }
 
   async function loadFromSupabase() {
     if (!state.user) return;
     try {
-      const { data: habits, error: hError } = await window.supabaseClient.from('habits').select('*').eq('user_id', state.user.id);
-      const { data: checks, error: cError } = await window.supabaseClient.from('checks').select('*').eq('user_id', state.user.id);
+      const { data: habits, error: hError } = await window.supabaseClient.from('habits').select('*').eq('user_email', state.user.email);
+      const { data: checks, error: cError } = await window.supabaseClient.from('checks').select('*').eq('user_email', state.user.email);
 
       if (!hError && habits) state.habits = habits;
       if (!cError && checks) {
         state.checks = {};
         checks.forEach(c => { state.checks[`${c.habit_id}-${c.date}`] = true; });
       }
+      
+      const statusEl = document.getElementById('db-status');
+      statusEl.textContent = 'Cloud Synced';
+      statusEl.style.background = '#dcfce7';
+      statusEl.style.color = '#166534';
     } catch (e) {
       console.error("Supabase load failed:", e);
     }
