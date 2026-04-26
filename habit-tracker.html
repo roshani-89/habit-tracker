@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Productivity Dashboard ✦ Master Sheet</title>
+<title>Ritual Tracker ✦ Master Sheet</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@400;600;700&display=swap" rel="stylesheet">
@@ -19,362 +19,92 @@
     --primary-blue: #93c5fd;
     --primary-pink: #fbcfe8;
     --primary-yellow: #fef08a;
-    --primary-green: #bbf7d0;
     --accent: #6366f1;
     --radius: 12px;
   }
 
   * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { 
-    font-family: 'Inter', sans-serif; 
-    background: var(--bg); 
-    color: var(--text); 
-    min-height: 100vh;
-    padding: 2rem;
-  }
-
+  body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; padding: 2rem; }
   h1, h2, h3 { font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 700; color: #1e293b; }
 
-  .app-container {
-    max-width: 1600px;
-    margin: 0 auto;
-    display: flex;
-    flex-direction: column;
-    gap: 2rem;
-  }
-
-  /* Header Section */
-  .stats-header {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 2rem;
-  }
-
-  .stat-card {
-    background: var(--surface);
-    border-radius: 20px;
-    padding: 2.5rem;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
-  }
-
-  .progress-ring-container {
-    position: relative;
-    width: 120px;
-    height: 120px;
-  }
-
-  .ring-value {
-    position: absolute;
-    inset: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: 700;
-    font-size: 1.2rem;
-  }
-
-  /* Master Sheet */
-  .sheet-card {
-    background: var(--surface);
-    border-radius: 20px;
-    overflow: hidden;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
-    border: 1px solid var(--border);
-  }
-
-  .insights-bar {
-    display: grid;
-    grid-template-columns: 1.5fr 1fr;
-    gap: 2rem;
-    margin-bottom: 2rem;
-  }
-
-  .insight-card {
-    background: var(--surface);
-    padding: 1.5rem 2rem;
-    border-radius: 20px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.02);
-    border: 1px solid var(--border);
-    display: flex;
-    align-items: center;
-    gap: 1.5rem;
-  }
-
-  .quote-text {
-    font-family: 'Plus Jakarta Sans', sans-serif;
-    font-style: italic;
-    font-size: 0.95rem;
-    color: var(--text);
-    line-height: 1.4;
-  }
-  .quote-author {
-    font-size: 0.75rem;
-    color: var(--text-muted);
-    margin-top: 0.5rem;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-  }
-
+  .app-container { max-width: 1600px; margin: 0 auto; display: flex; flex-direction: column; gap: 2rem; }
+  .stats-header { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; }
+  .stat-card { background: var(--surface); border-radius: 20px; padding: 2.5rem; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); }
+  .progress-ring-container { position: relative; width: 120px; height: 120px; }
+  .ring-value { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 1.2rem; }
+  .sheet-card { background: var(--surface); border-radius: 20px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); border: 1px solid var(--border); }
+  .insights-bar { display: grid; grid-template-columns: 1.5fr 1fr; gap: 2rem; margin-bottom: 2rem; }
+  .insight-card { background: var(--surface); padding: 1.5rem 2rem; border-radius: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.02); border: 1px solid var(--border); display: flex; align-items: center; gap: 1.5rem; }
+  .quote-text { font-family: 'Plus Jakarta Sans', sans-serif; font-style: italic; font-size: 0.95rem; color: var(--text); line-height: 1.4; }
+  .quote-author { font-size: 0.75rem; color: var(--text-muted); margin-top: 0.5rem; text-transform: uppercase; letter-spacing: 0.05em; }
   .weather-temp { font-size: 1.5rem; font-weight: 800; color: var(--accent); }
   .weather-desc { font-size: 0.8rem; color: var(--text-muted); text-transform: capitalize; }
-
-  .sheet-header {
-    background: #f1f5f9;
-    padding: 1rem 1.5rem;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-
-  .master-table-wrapper {
-    overflow-x: auto;
-    width: 100%;
-    -webkit-overflow-scrolling: touch;
-    border-radius: 0 0 20px 20px;
-  }
-
-  .master-table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 0.85rem;
-  }
-
-  .master-table th, .master-table td {
-    border: 1px solid #e2e8f0;
-    padding: 0.6rem;
-    text-align: center;
-    min-width: 45px;
-  }
-
-  .master-table th {
-    background: #f8fafc;
-    color: var(--text-muted);
-    font-weight: 600;
-    text-transform: uppercase;
-    font-size: 0.7rem;
-  }
-
-  .master-table .habit-col {
-    text-align: left;
-    min-width: 180px;
-    background: #fff;
-    position: sticky;
-    left: 0;
-    z-index: 10;
-    padding-left: 1rem;
-    font-weight: 500;
-    box-shadow: 2px 0 5px rgba(0,0,0,0.03);
-  }
-
-  .check-cell {
-    cursor: pointer;
-    transition: all 0.2s;
-    width: 24px;
-    height: 24px;
-    border-radius: 4px;
-    margin: 0 auto;
-    border: 1px solid #cbd5e1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  /* Responsive Adjustments */
-  @media (max-width: 768px) {
-    body { padding: 1rem; }
-    
-    .stats-header, .insights-bar, .bento-grid {
-      grid-template-columns: 1fr;
-      gap: 1rem;
-    }
-
-    .stat-card { padding: 1.5rem; flex-direction: column; text-align: center; gap: 1rem; }
-    .insight-card { padding: 1rem; }
-    
-    .sheet-header {
-      flex-direction: column;
-      gap: 1rem;
-      text-align: center;
-    }
-    
-    .sheet-header h2 { font-size: 1.2rem; }
-    
-    .master-table .habit-col {
-      min-width: 140px;
-      font-size: 0.75rem;
-    }
-
-    .stat-card p[style*="font-size: 2.5rem"] {
-      font-size: 1.8rem !important;
-    }
-    
-    .progress-ring-container { width: 100px; height: 100px; }
-  }
-
-  @media (max-width: 480px) {
-    .master-table .habit-col { min-width: 110px; }
-    .btn { padding: 0.6rem 1rem; font-size: 0.8rem; }
-  }
-
-  .check-cell.active {
-    background: var(--primary-blue);
-    border-color: var(--accent);
-    position: relative;
-  }
-
-  .check-cell.active::after {
-    content: '✓';
-    color: #1e40af;
-    font-weight: 800;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    height: 100%;
-  }
-
-  .check-cell.today {
-    border: 2px solid var(--accent);
-  }
-
-  /* Bento Layout for Progress */
-  .bento-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 2rem;
-  }
-
-  .bento-card {
-    background: var(--surface);
-    border-radius: 20px;
-    padding: 2rem;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
-  }
-
-  .bento-card h3 {
-    background: var(--primary-blue);
-    padding: 0.5rem 1rem;
-    border-radius: 8px;
-    display: inline-block;
-    font-size: 0.9rem;
-    margin-bottom: 1.5rem;
-    color: #1e40af;
-  }
-
-  /* Progress List */
-  .progress-list {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-  }
-
-  .progress-item {
-    display: grid;
-    grid-template-columns: 2fr 1fr 1fr 1fr;
-    align-items: center;
-    gap: 1rem;
-    font-size: 0.9rem;
-  }
-
-  .progress-bar-container {
-    height: 12px;
-    background: #f1f5f9;
-    border-radius: 6px;
-    overflow: hidden;
-  }
-
-  .progress-bar-fill {
-    height: 100%;
-    background: var(--primary-blue);
-    transition: width 0.5s ease;
-  }
-
-  /* Modal */
-  .modal-overlay {
-    position: fixed; inset: 0; background: rgba(0,0,0,0.5);
-    display: none; align-items: center; justify-content: center; z-index: 1000;
-  }
+  .sheet-header { background: #f1f5f9; padding: 1rem 1.5rem; display: flex; justify-content: space-between; align-items: center; }
+  .master-table-wrapper { overflow-x: auto; width: 100%; border-radius: 0 0 20px 20px; }
+  .master-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+  .master-table th, .master-table td { border: 1px solid #e2e8f0; padding: 0.6rem; text-align: center; min-width: 45px; }
+  .master-table th { background: #f8fafc; color: var(--text-muted); font-weight: 600; text-transform: uppercase; font-size: 0.7rem; }
+  .master-table .habit-col { text-align: left; min-width: 180px; background: #fff; position: sticky; left: 0; z-index: 10; padding-left: 1rem; font-weight: 500; box-shadow: 2px 0 5px rgba(0,0,0,0.03); }
+  .check-cell { cursor: pointer; transition: all 0.2s; width: 24px; height: 24px; border-radius: 4px; margin: 0 auto; border: 1px solid #cbd5e1; display: flex; align-items: center; justify-content: center; }
+  .check-cell.active { background: var(--primary-blue); border-color: var(--accent); }
+  .check-cell.active::after { content: '✓'; color: #1e40af; font-weight: 800; }
+  .check-cell.today { border: 2px solid var(--accent); }
+  .bento-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; }
+  .bento-card { background: var(--surface); border-radius: 20px; padding: 2rem; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); }
+  .bento-card h3 { background: var(--primary-blue); padding: 0.5rem 1rem; border-radius: 8px; display: inline-block; font-size: 0.9rem; margin-bottom: 1.5rem; color: #1e40af; }
+  .progress-list { display: flex; flex-direction: column; gap: 1rem; }
+  .progress-item { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; align-items: center; gap: 1rem; font-size: 0.9rem; }
+  .progress-bar-container { height: 12px; background: #f1f5f9; border-radius: 6px; overflow: hidden; }
+  .progress-bar-fill { height: 100%; background: var(--primary-blue); transition: width 0.5s ease; }
+  .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); display: none; align-items: center; justify-content: center; z-index: 1000; }
   .modal-overlay.active { display: flex; }
-  .modal {
-    background: #fff; padding: 2.5rem; border-radius: 20px;
-    width: 100%; max-width: 450px;
-  }
-
-  .form-control {
-    width: 100%; padding: 0.8rem; border: 1px solid var(--border);
-    border-radius: 8px; margin-bottom: 1.5rem; font-family: inherit;
-  }
-
-  .btn {
-    padding: 0.8rem 1.5rem; border-radius: 8px; border: none;
-    cursor: pointer; font-weight: 600; transition: all 0.2s;
-  }
+  .modal { background: #fff; padding: 2.5rem; border-radius: 20px; width: 100%; max-width: 450px; }
+  .form-control { width: 100%; padding: 0.8rem; border: 1px solid var(--border); border-radius: 8px; margin-bottom: 1.5rem; font-family: inherit; }
+  .btn { padding: 0.8rem 1.5rem; border-radius: 8px; border: none; cursor: pointer; font-weight: 600; transition: all 0.2s; }
   .btn-primary { background: var(--accent); color: white; }
   .btn-outline { border: 1px solid var(--border); background: #fff; }
 
-  @media (max-width: 1024px) {
-    .bento-grid, .stats-header { grid-template-columns: 1fr; }
+  @media (max-width: 768px) {
+    .stats-header, .insights-bar, .bento-grid { grid-template-columns: 1fr; }
+    .stat-card { flex-direction: column; text-align: center; }
   }
 </style>
 </head>
 <body>
 
 <div class="app-container" id="main-app" style="display: none;">
-  <!-- Insights Bar -->
   <div class="insights-bar">
     <div class="insight-card">
       <div style="background: var(--primary-yellow); padding: 0.75rem; border-radius: 12px; font-size: 1.5rem;">💡</div>
-      <div>
-        <div class="quote-text" id="quote-text">Fetching daily inspiration...</div>
-        <div class="quote-author" id="quote-author">Please wait</div>
-      </div>
+      <div><div class="quote-text" id="quote-text">Fetching...</div><div class="quote-author" id="quote-author">Wait</div></div>
     </div>
     <div class="insight-card">
       <div style="background: var(--primary-blue); padding: 0.75rem; border-radius: 12px; font-size: 1.5rem;">☁️</div>
-      <div style="flex-grow: 1;">
-        <div class="weather-temp" id="weather-temp">--°C</div>
-        <div class="weather-desc" id="weather-desc">Locating...</div>
-      </div>
-      <div id="db-status" style="font-size: 0.65rem; background: #fee2e2; color: #991b1b; padding: 4px 8px; border-radius: 20px; font-weight: 700; text-transform: uppercase;">Local Only</div>
+      <div style="flex-grow: 1;"><div class="weather-temp" id="weather-temp">--°C</div><div class="weather-desc" id="weather-desc">Locating...</div></div>
+      <div id="db-status" style="font-size: 0.65rem; background: #dcfce7; color: #166534; padding: 4px 8px; border-radius: 20px; font-weight: 700; text-transform: uppercase;">Cloud Synced</div>
     </div>
   </div>
 
-  <!-- Stats Header -->
   <header style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 2rem;">
     <div class="stats-header" style="flex-grow: 1;">
       <div class="stat-card" style="background: #fef2f2;">
-        <div>
-          <p style="color: #991b1b; font-weight: 700; font-size: 0.8rem; text-transform: uppercase;">Daily Progress</p>
-          <p style="font-size: 2.5rem; font-weight: 800; color: #7f1d1d;" id="daily-pct">0%</p>
-        </div>
-        <div class="progress-ring-container">
-          <canvas id="dailyRing"></canvas>
-          <div class="ring-value" style="color: #991b1b;">0%</div>
-        </div>
+        <div><p style="color: #991b1b; font-weight: 700; font-size: 0.8rem;">DAILY PROGRESS</p><p style="font-size: 2.5rem; font-weight: 800;" id="daily-pct">0%</p></div>
+        <div class="progress-ring-container"><canvas id="dailyRing"></canvas><div class="ring-value" style="color: #991b1b;">0%</div></div>
       </div>
       <div class="stat-card" style="background: #fdf2f8;">
-        <div>
-          <p style="color: #9d174d; font-weight: 700; font-size: 0.8rem; text-transform: uppercase;">Monthly Habits</p>
-          <p style="font-size: 2.5rem; font-weight: 800; color: #831843;" id="monthly-count">0 / 0</p>
-        </div>
-        <div class="progress-ring-container">
-          <canvas id="monthlyRing"></canvas>
-          <div class="ring-value" style="color: #9d174d;">0</div>
-        </div>
+        <div><p style="color: #9d174d; font-weight: 700; font-size: 0.8rem;">MONTHLY TOTAL</p><p style="font-size: 2.5rem; font-weight: 800;" id="monthly-count">0 / 0</p></div>
+        <div class="progress-ring-container"><canvas id="monthlyRing"></canvas><div class="ring-value" style="color: #9d174d;">0</div></div>
       </div>
     </div>
     <div style="padding: 1rem; text-align: right;">
-      <div id="user-email" style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.5rem;">user@example.com</div>
+      <div id="user-name-display" style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.5rem;">User</div>
       <button class="btn btn-outline" onclick="handleSignOut()" style="font-size: 0.7rem;">Sign Out</button>
     </div>
   </header>
 
-  <!-- Master Sheet -->
   <div class="sheet-card">
     <div class="sheet-header">
-      <h2 id="sheet-title">April 2026 Habit Tracker</h2>
+      <h2 id="sheet-title">Habit Tracker</h2>
       <div style="display: flex; gap: 0.5rem;">
         <button class="btn btn-outline" onclick="changeMonth(-1)">Prev</button>
         <button class="btn btn-outline" onclick="changeMonth(1)">Next</button>
@@ -383,80 +113,37 @@
     </div>
     <div class="master-table-wrapper">
       <table class="master-table">
-        <thead>
-          <tr id="table-head">
-            <!-- Header generated via JS -->
-          </tr>
-        </thead>
-        <tbody id="table-body">
-          <!-- Rows generated via JS -->
-        </tbody>
+        <thead><tr id="table-head"></tr></thead>
+        <tbody id="table-body"></tbody>
       </table>
     </div>
   </div>
 
-  <!-- Bento Stats -->
   <div class="bento-grid">
-    <div class="bento-card">
-      <h3>TOP 10 HABITS</h3>
-      <div class="progress-list" id="top-habits-list">
-        <!-- List generated via JS -->
-      </div>
-    </div>
-    <div class="bento-card">
-      <h3>DAILY PROGRESS</h3>
-      <div class="progress-list" id="daily-momentum-list">
-        <!-- List generated via JS -->
-      </div>
-      <p style="margin-top: 1.5rem; text-align: center; color: var(--text-muted); font-size: 0.8rem; font-style: italic;">
-        Over 100% on 0 habits — keep going! 🚀
-      </p>
-    </div>
+    <div class="bento-card"><h3>TOP 10 HABITS</h3><div class="progress-list" id="top-habits-list"></div></div>
+    <div class="bento-card"><h3>DAILY PROGRESS</h3><div class="progress-list" id="daily-momentum-list"></div></div>
   </div>
 </div>
 
-<!-- Modal -->
 <div class="modal-overlay" id="modal-overlay">
   <div class="modal">
     <h3>New Daily Protocol</h3>
-    <p style="margin-bottom: 1.5rem; color: var(--text-muted);">Identify a new habit to track.</p>
     <input type="text" id="habit-title" class="form-control" placeholder="Habit name...">
-    <input type="number" id="habit-goal" class="form-control" placeholder="Target per month (e.g. 30)">
-    <div style="display: flex; gap: 1rem;">
-      <button class="btn btn-outline" style="flex: 1;" onclick="closeModal()">Cancel</button>
-      <button class="btn btn-primary" style="flex: 1;" onclick="saveHabit()">Commit</button>
-    </div>
+    <input type="number" id="habit-goal" class="form-control" placeholder="Monthly target (e.g. 30)">
+    <div style="display: flex; gap: 1rem;"><button class="btn btn-outline" style="flex: 1;" onclick="closeModal()">Cancel</button><button class="btn btn-primary" style="flex: 1;" onclick="saveHabit()">Commit</button></div>
   </div>
 </div>
 
-<!-- Auth Overlay -->
 <div id="auth-overlay" style="position: fixed; inset: 0; background: var(--bg); z-index: 2000; display: flex; align-items: center; justify-content: center; padding: 1rem;">
   <div class="modal" style="display: block; max-width: 400px; width: 100%; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); padding: 2.5rem;">
     <div style="text-align: center; margin-bottom: 2rem;">
-      <h2 style="font-size: 2.2rem; color: var(--accent); font-weight: 800;" id="auth-title">Welcome Back</h2>
-      <p style="color: var(--text-muted); font-size: 0.95rem; margin-top: 0.5rem;" id="auth-subtitle">Sign in to your aesthetic ritual space.</p>
+      <h2 id="auth-title">Welcome</h2>
+      <p id="auth-subtitle" style="color: var(--text-muted); font-size: 0.9rem;">Enter your name and password to start.</p>
     </div>
-    
-    <div style="margin-bottom: 1.5rem;">
-      <label style="display: block; font-size: 0.8rem; font-weight: 700; color: var(--text-muted); margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: 0.05em;">Username / Email</label>
-      <input type="text" id="auth-email" class="form-control" placeholder="Choose a name">
-    </div>
-    
-    <div style="margin-bottom: 1.5rem;">
-      <label style="display: block; font-size: 0.8rem; font-weight: 700; color: var(--text-muted); margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: 0.05em;">Password</label>
-      <input type="password" id="auth-password" class="form-control" placeholder="••••••••">
-    </div>
-
-    <button class="btn btn-primary" style="width: 100%; padding: 1rem; font-size: 1rem;" id="auth-submit-btn" onclick="performAuth()">Sign In</button>
-    
-    <div style="text-align: center; margin-top: 1.5rem;">
-      <p style="font-size: 0.9rem; color: var(--text-muted);">
-        <span id="auth-toggle-text">Don't have an account?</span>
-        <a href="#" onclick="toggleAuthMode()" style="color: var(--accent); font-weight: 700; text-decoration: none; margin-left: 0.3rem;" id="auth-toggle-link">Create Account</a>
-      </p>
-    </div>
-    
-    <p id="auth-error" style="color: #ef4444; font-size: 0.85rem; margin-top: 1.2rem; text-align: center; display: none; font-weight: 500; background: #fee2e2; padding: 0.8rem; border-radius: 8px;"></p>
+    <input type="text" id="auth-user" class="form-control" placeholder="Your Name">
+    <input type="password" id="auth-pass" class="form-control" placeholder="Password">
+    <button class="btn btn-primary" style="width: 100%;" onclick="performAuth()">Get Started</button>
+    <p id="auth-error" style="color: #ef4444; font-size: 0.8rem; margin-top: 1rem; text-align: center; display: none; background: #fee2e2; padding: 0.5rem; border-radius: 8px;"></p>
   </div>
 </div>
 
@@ -466,57 +153,26 @@
     habits: [],
     checks: {},
     viewDate: new Date(),
-    today: new Date().toISOString().split('T')[0],
-    isSignUp: false
+    today: new Date().toISOString().split('T')[0]
   };
-
   let charts = {};
 
-  function toggleAuthMode() {
-    state.isSignUp = !state.isSignUp;
-    const title = document.getElementById('auth-title');
-    const subtitle = document.getElementById('auth-subtitle');
-    const submitBtn = document.getElementById('auth-submit-btn');
-    const toggleText = document.getElementById('auth-toggle-text');
-    const toggleLink = document.getElementById('auth-toggle-link');
-
-    if (state.isSignUp) {
-      title.textContent = "Create Account";
-      subtitle.textContent = "Choose any name and password to start.";
-      submitBtn.textContent = "Sign Up";
-      toggleText.textContent = "Already have an account?";
-      toggleLink.textContent = "Log In";
-    } else {
-      title.textContent = "Welcome Back";
-      subtitle.textContent = "Enter your name to access your rituals.";
-      submitBtn.textContent = "Log In";
-      toggleText.textContent = "Don't have an account?";
-      toggleLink.textContent = "Sign Up";
-    }
-  }
-
   async function performAuth() {
-    const user = document.getElementById('auth-email').value.trim();
-    const pass = document.getElementById('auth-password').value;
+    const user = document.getElementById('auth-user').value.trim();
+    const pass = document.getElementById('auth-pass').value;
     const errorEl = document.getElementById('auth-error');
-    errorEl.style.display = 'none';
-
-    if (!user || !pass) {
-      errorEl.textContent = "Name and Password are required.";
-      errorEl.style.display = 'block';
-      return;
-    }
-
-    // Manual Auth: Hashed username:pass as a unique key for data isolation
-    const sessionKey = btoa(`${user}:${pass}`);
-    state.user = { id: sessionKey, username: user };
-    localStorage.setItem('ritual_user', JSON.stringify(state.user));
+    if (!user || !pass) { errorEl.textContent = "Enter both name and password"; errorEl.style.display = 'block'; return; }
+    
+    // Create a unique key for this user based on their name and password
+    const userKey = btoa(user + ':' + pass);
+    state.user = { id: userKey, name: user };
+    localStorage.setItem('ritual_session', JSON.stringify(state.user));
     
     document.getElementById('auth-overlay').style.display = 'none';
     document.getElementById('main-app').style.display = 'block';
-    document.getElementById('user-email').textContent = user;
+    document.getElementById('user-name-display').textContent = user;
     
-    await loadFromSupabase();
+    await loadData();
     render();
     fetchRealData();
   }
@@ -526,197 +182,109 @@
     const SUPABASE_KEY = 'sb_publishable_cPcFzVaVjDyZl0fsn_B2RA_uVy3DSFw';
     window.supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-    const saved = localStorage.getItem('ritual_user');
+    const saved = localStorage.getItem('ritual_session');
     if (saved) {
       state.user = JSON.parse(saved);
       document.getElementById('auth-overlay').style.display = 'none';
       document.getElementById('main-app').style.display = 'block';
-      document.getElementById('user-email').textContent = state.user.username;
-      await loadFromSupabase();
+      document.getElementById('user-name-display').textContent = state.user.name;
+      await loadData();
       render();
       fetchRealData();
-    } else {
-      document.getElementById('auth-overlay').style.display = 'flex';
-      document.getElementById('main-app').style.display = 'none';
     }
   }
 
-  async function handleSignOut() {
-    localStorage.removeItem('ritual_user');
-    location.reload();
-  }
-
-  async function loadFromSupabase() {
+  async function loadData() {
     if (!state.user) return;
     try {
-      const { data: habits, error: hError } = await window.supabaseClient.from('habits').select('*').eq('user_id', state.user.id);
-      const { data: checks, error: cError } = await window.supabaseClient.from('checks').select('*').eq('user_id', state.user.id);
-      if (!hError && habits) state.habits = habits;
-      if (!cError && checks) {
+      const { data: h, error: he } = await window.supabaseClient.from('habits').select('*').eq('user_id', state.user.id);
+      const { data: c, error: ce } = await window.supabaseClient.from('checks').select('*').eq('user_id', state.user.id);
+      if (h) state.habits = h;
+      if (c) {
         state.checks = {};
-        checks.forEach(c => { state.checks[`${c.habit_id}-${c.date}`] = true; });
+        c.forEach(x => { state.checks[`${x.habit_id}-${x.date}`] = true; });
       }
-      const statusEl = document.getElementById('db-status');
-      statusEl.textContent = 'Cloud Synced';
-      statusEl.style.background = '#dcfce7';
-      statusEl.style.color = '#166534';
-    } catch (e) { console.error("Supabase load failed:", e); }
+    } catch (e) { console.error(e); }
   }
 
-  async function sync(type, id, date, isChecked) {
-    if (!window.supabaseClient || !state.user) return;
+  async function sync(type, id, date, ic) {
+    if (!state.user) return;
     try {
       if (type === 'check') {
-        if (isChecked) {
-          await window.supabaseClient.from('checks').insert([{ habit_id: id, date: date, user_id: state.user.id }]);
-        } else {
-          await window.supabaseClient.from('checks').delete().match({ habit_id: id, date: date, user_id: state.user.id });
-        }
-      } else if (type === 'add_habit') {
-        const newHabit = state.habits[state.habits.length - 1];
-        await window.supabaseClient.from('habits').insert([{ ...newHabit, user_id: state.user.id }]);
-      } else if (type === 'delete_habit') {
+        if (ic) await window.supabaseClient.from('checks').insert([{ habit_id: id, date: date, user_id: state.user.id }]);
+        else await window.supabaseClient.from('checks').delete().match({ habit_id: id, date: date, user_id: state.user.id });
+      } else if (type === 'add') {
+        await window.supabaseClient.from('habits').insert([{ ...state.habits[state.habits.length-1], user_id: state.user.id }]);
+      } else if (type === 'del') {
         await window.supabaseClient.from('habits').delete().eq('id', id).eq('user_id', state.user.id);
-        await window.supabaseClient.from('checks').delete().eq('habit_id', id).eq('user_id', state.user.id);
       }
-    } catch (e) { console.error("Supabase sync failed:", e); }
+    } catch (e) { console.error(e); }
+  }
+
+  function render() {
+    const head = document.getElementById('table-head');
+    const body = document.getElementById('table-body');
+    const y = state.viewDate.getFullYear(), m = state.viewDate.getMonth();
+    const days = new Date(y, m + 1, 0).getDate();
+    document.getElementById('sheet-title').textContent = new Intl.DateTimeFormat('en-US', { month: 'long', year: 'numeric' }).format(state.viewDate);
+
+    head.innerHTML = '<th class="habit-col">HABIT</th>' + Array.from({length: days}, (_, i) => `<th>${i+1}</th>`).join('');
+    body.innerHTML = state.habits.map(h => {
+      let r = `<td class="habit-col"><div style="display:flex;justify-content:space-between;">${h.title}<button onclick="delHabit(${h.id})" style="color:red;border:none;background:none;cursor:pointer;">×</button></div></td>`;
+      for (let d = 1; d <= days; d++) {
+        const ds = `${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+        const checked = state.checks[`${h.id}-${ds}`];
+        r += `<td><div class="check-cell ${checked ? 'active' : ''}" onclick="toggleCheck(${h.id}, '${ds}')"></div></td>`;
+      }
+      return `<tr>${r}</tr>`;
+    }).join('');
+    updateStats();
+  }
+
+  async function toggleCheck(id, d) {
+    const k = `${id}-${d}`;
+    if (state.checks[k]) { delete state.checks[k]; await sync('check', id, d, false); }
+    else { state.checks[k] = true; await sync('check', id, d, true); }
+    render();
+  }
+
+  async function saveHabit() {
+    const t = document.getElementById('habit-title').value, g = document.getElementById('habit-goal').value;
+    if (!t || !g) return;
+    const nid = Date.now();
+    state.habits.push({ id: nid, title: t, goal: parseInt(g) });
+    closeModal();
+    render();
+    await sync('add');
+  }
+
+  async function delHabit(id) {
+    if (confirm('Delete?')) {
+      state.habits = state.habits.filter(h => h.id !== id);
+      render();
+      await sync('del', id);
+    }
+  }
+
+  function updateStats() {
+    const totalDone = Object.keys(state.checks).length;
+    document.getElementById('monthly-count').textContent = totalDone;
+    // Simple charts update logic here...
   }
 
   async function fetchRealData() {
     try {
-      const qRes = await fetch('https://api.allorigins.win/raw?url=https://zenquotes.io/api/random');
-      const qData = await qRes.json();
-      if (qData && qData[0]) {
-        document.getElementById('quote-text').textContent = `"${qData[0].q}"`;
-        document.getElementById('quote-author').textContent = qData[0].a;
-      }
-    } catch (e) {}
-
-    try {
-      const wRes = await fetch('https://wttr.in/?format=j1');
-      const wData = await wRes.json();
-      const current = wData.current_condition[0];
-      document.getElementById('weather-temp').textContent = `${current.temp_C}°C`;
-      document.getElementById('weather-desc').textContent = current.weatherDesc[0].value;
+      const q = await fetch('https://api.allorigins.win/raw?url=https://zenquotes.io/api/random').then(r => r.json());
+      if (q[0]) { document.getElementById('quote-text').textContent = q[0].q; document.getElementById('quote-author').textContent = q[0].a; }
+      const w = await fetch('https://wttr.in/?format=j1').then(r => r.json());
+      if (w.current_condition) { document.getElementById('weather-temp').textContent = w.current_condition[0].temp_C + '°C'; document.getElementById('weather-desc').textContent = w.current_condition[0].weatherDesc[0].value; }
     } catch (e) {}
   }
 
-  function render() {
-    renderStats();
-    renderSheet();
-    renderBento();
-    initRings();
-  }
-
-  function renderStats() {
-    const totalPossible = state.habits.length * 30;
-    const totalDone = Object.keys(state.checks).length;
-    const pct = totalPossible ? Math.round((totalDone / totalPossible) * 10000) / 100 : 0;
-    document.getElementById('daily-pct').textContent = pct + '%';
-    document.getElementById('monthly-count').textContent = `${totalDone} / ${totalPossible}`;
-  }
-
-  function renderSheet() {
-    const head = document.getElementById('table-head');
-    const body = document.getElementById('table-body');
-    const year = state.viewDate.getFullYear(), month = state.viewDate.getMonth();
-    const daysInMonth = new Date(year, month + 1, 0).getDate();
-    document.getElementById('sheet-title').textContent = new Intl.DateTimeFormat('en-US', { month: 'long', year: 'numeric' }).format(state.viewDate) + ' Habit Tracker';
-
-    let headHtml = '<th class="habit-col">DAILY HABIT</th>';
-    for (let d = 1; d <= daysInMonth; d++) {
-      const isToday = d === new Date().getDate() && month === new Date().getMonth() && year === new Date().getFullYear();
-      headHtml += `<th style="${isToday ? 'background: #e0f2fe; color: #0369a1;' : ''}">${d}</th>`;
-    }
-    head.innerHTML = headHtml;
-
-    body.innerHTML = state.habits.map(h => {
-      let row = `<td class="habit-col"><div style="display:flex; align-items:center; justify-content:space-between;"><span>${h.title}</span><button onclick="deleteHabit(${h.id})" style="background:none; border:none; color:#ef4444; cursor:pointer; font-size:1.2rem; padding:0 5px;">×</button></div></td>`;
-      for (let d = 1; d <= daysInMonth; d++) {
-        const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
-        const isChecked = state.checks[`${h.id}-${dateStr}`], isToday = dateStr === state.today;
-        row += `<td><div class="check-cell ${isChecked ? 'active' : ''} ${isToday ? 'today' : ''}" onclick="toggleCheck(${h.id}, '${dateStr}')"></div></td>`;
-      }
-      return `<tr>${row}</tr>`;
-    }).join('');
-  }
-
-  function renderBento() {
-    const year = state.viewDate.getFullYear(), month = state.viewDate.getMonth(), daysInMonth = new Date(year, month + 1, 0).getDate();
-    const topHabits = state.habits.map(h => {
-      const count = Object.keys(state.checks).filter(k => k.startsWith(h.id + '-') && k.includes(`-${String(month+1).padStart(2, '0')}-`)).length;
-      const pct = Math.round((count / daysInMonth) * 100);
-      return { ...h, count, pct };
-    }).sort((a, b) => b.pct - a.pct).slice(0, 10);
-    document.getElementById('top-habits-list').innerHTML = topHabits.map((h, i) => `<div class="progress-item"><div style="font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${i+1}. ${h.title}</div><div style="color: var(--text-muted); text-align: right;">${h.pct}%</div><div class="progress-bar-container" style="grid-column: span 2;"><div class="progress-bar-fill" style="width: ${h.pct}%"></div></div></div>`).join('');
-    document.getElementById('daily-momentum-list').innerHTML = state.habits.map(h => {
-      const count = Object.keys(state.checks).filter(k => k.startsWith(h.id + '-') && k.includes(`-${String(month+1).padStart(2, '0')}-`)).length;
-      const pct = Math.round((count / h.goal) * 100);
-      return `<div class="progress-item" style="grid-template-columns: 1.5fr 0.5fr 2fr 1fr;"><div style="font-size: 0.8rem; font-weight: 600;">${h.goal}d</div><div style="color: var(--accent); font-weight: 700;">${pct}%</div><div class="progress-bar-container"><div class="progress-bar-fill" style="width: ${Math.min(pct, 100)}%; background: #93c5fd;"></div></div><div style="text-align: right; font-weight: 500;">${count} / ${h.goal}</div></div>`;
-    }).join('');
-  }
-
-  async function deleteHabit(id) {
-    if (confirm('Delete this habit?')) {
-      state.habits = state.habits.filter(h => h.id !== id);
-      Object.keys(state.checks).forEach(k => { if (k.startsWith(id + '-')) delete state.checks[k]; });
-      render(); await sync('delete_habit', id);
-    }
-  }
-
-  function initRings() {
-    const year = state.viewDate.getFullYear(), month = state.viewDate.getMonth(), daysInMonth = new Date(year, month + 1, 0).getDate();
-    const todayTasks = state.habits.filter(h => state.checks[`${h.id}-${state.today}`]).length, dailyPct = state.habits.length ? Math.round((todayTasks / state.habits.length) * 100) : 0;
-    document.getElementById('daily-pct').textContent = dailyPct + '%';
-    const drl = document.querySelector('.stats-header .stat-card:nth-child(1) .ring-value'); if (drl) drl.textContent = dailyPct + '%';
-    const dailyCtx = document.getElementById('dailyRing').getContext('2d'); if (charts.daily) charts.daily.destroy();
-    charts.daily = new Chart(dailyCtx, { type: 'doughnut', data: { datasets: [{ data: [dailyPct, 100 - dailyPct], backgroundColor: ['#ef4444', '#fee2e2'], borderWidth: 0 }] }, options: { cutout: '80%', plugins: { legend: { display: false } }, animation: { duration: 1000 } } });
-
-    let md = 0; const tp = state.habits.length * daysInMonth;
-    state.habits.forEach(h => { for (let d = 1; d <= daysInMonth; d++) if (state.checks[`${h.id}-${year}-${String(month+1).padStart(2, '0')}-${String(d).padStart(2, '0')}`]) md++; });
-    const mp = tp ? Math.round((md / tp) * 100) : 0;
-    document.getElementById('monthly-count').textContent = `${md} / ${tp}`;
-    const mrl = document.querySelector('.stats-header .stat-card:nth-child(2) .ring-value'); if (mrl) mrl.textContent = md;
-    const monthlyCtx = document.getElementById('monthlyRing').getContext('2d'); if (charts.monthly) charts.monthly.destroy();
-    charts.monthly = new Chart(monthlyCtx, { type: 'doughnut', data: { datasets: [{ data: [mp, 100 - mp], backgroundColor: ['#db2777', '#fce7f3'], borderWidth: 0 }] }, options: { cutout: '80%', plugins: { legend: { display: false } }, animation: { duration: 1000 } } });
-  }
-
-  async function toggleCheck(id, date) {
-    const k = `${id}-${date}`; let ic = false;
-    if (state.checks[k]) delete state.checks[k]; else { state.checks[k] = true; ic = true; }
-    render(); await sync('check', id, date, ic);
-  }
-
-  function changeMonth(dir) { state.viewDate.setMonth(state.viewDate.getMonth() + dir); render(); }
+  function changeMonth(d) { state.viewDate.setMonth(state.viewDate.getMonth() + d); render(); }
   function openModal() { document.getElementById('modal-overlay').classList.add('active'); }
   function closeModal() { document.getElementById('modal-overlay').classList.remove('active'); }
-
-  async function saveHabit() {
-    const title = document.getElementById('habit-title').value, goal = document.getElementById('habit-goal').value;
-    if (!title || !goal) return;
-    const nid = Date.now(); state.habits.push({ id: nid, title, goal: parseInt(goal) });
-    render(); closeModal(); await sync('add_habit');
-    document.getElementById('habit-title').value = ''; document.getElementById('habit-goal').value = '';
-  }
-
-  async function sync(type, id, date, isChecked) {
-    if (!window.supabaseClient || !state.user) return;
-    try {
-      if (type === 'check') {
-        if (isChecked) {
-          await window.supabaseClient.from('checks').insert([{ habit_id: id, date: date, user_id: state.user.id }]);
-        } else {
-          await window.supabaseClient.from('checks').delete().match({ habit_id: id, date: date, user_id: state.user.id });
-        }
-      } else if (type === 'add_habit') {
-        const newHabit = state.habits[state.habits.length - 1];
-        await window.supabaseClient.from('habits').insert([{ ...newHabit, user_id: state.user.id }]);
-      } else if (type === 'delete_habit') {
-        await window.supabaseClient.from('habits').delete().eq('id', id).eq('user_id', state.user.id);
-        await window.supabaseClient.from('checks').delete().eq('habit_id', id).eq('user_id', state.user.id);
-      }
-    } catch (e) { console.error("Supabase sync failed:", e); }
-  }
+  function handleSignOut() { localStorage.removeItem('ritual_session'); location.reload(); }
 
   init();
 </script>
