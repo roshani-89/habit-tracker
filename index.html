@@ -438,11 +438,10 @@
     </div>
     <input type="email" id="auth-email" class="form-control" placeholder="Email Address">
     <input type="password" id="auth-password" class="form-control" placeholder="Password">
-    <div style="display: flex; gap: 1rem; margin-bottom: 1rem;">
+    <div style="display: flex; gap: 1rem;">
       <button class="btn btn-outline" style="flex: 1;" onclick="handleAuth('signUp')">Sign Up</button>
       <button class="btn btn-primary" style="flex: 1;" onclick="handleAuth('signIn')">Log In</button>
     </div>
-    <button class="btn btn-outline" style="width: 100%; border-style: dashed; border-color: var(--accent);" onclick="handleGuestLogin()">Continue as Guest</button>
     <p id="auth-error" style="color: #ef4444; font-size: 0.8rem; margin-top: 1rem; text-align: center; display: none;"></p>
   </div>
 </div>
@@ -463,26 +462,7 @@
     const SUPABASE_KEY = 'sb_publishable_cPcFzVaVjDyZl0fsn_B2RA_uVy3DSFw';
     window.supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-    window.supabaseClient.auth.onAuthStateChange(async (event, session) => {
-      if (session) {
-        state.user = session.user;
-        document.getElementById('auth-overlay').style.display = 'none';
-        document.getElementById('main-app').style.display = 'block';
-        document.getElementById('user-email').textContent = state.user.is_anonymous ? 'Guest User' : state.user.email;
-        await loadFromSupabase();
-        render();
-        fetchRealData();
-      } else {
-        state.user = null;
-        document.getElementById('auth-overlay').style.display = 'flex';
-        document.getElementById('main-app').style.display = 'none';
-      }
-    });
-  }
-
-  async function handleGuestLogin() {
-    const errorEl = document.getElementById('auth-error');
-    errorEl.style.display = 'none';
+    // Auto-login if session exists
     const savedSession = localStorage.getItem('ritual_session');
     if (savedSession) {
       state.user = JSON.parse(savedSession);
